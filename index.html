@@ -298,11 +298,26 @@
       if (navigator.share) {
         navigator.share({
           title: recipe.title,
-          text: `Tarif: ${recipe.title}\nKategori: ${recipe.category}\nMalzemeler: ${recipe.ingredients}\nAdımlar: ${recipe.steps}`
+          text: `🍽️ Tarif: ${recipe.title}\n📋 Malzemeler: ${recipe.ingredients}\n👨‍🍳 Yapılışı: ${recipe.steps}`
         }).catch(error => console.error("Paylaşım hatası:", error));
       } else {
         alert("Tarayıcınız paylaşım özelliğini desteklemiyor.");
       }
+    }
+
+    // Tarifi kopyalama fonksiyonu
+    function copyRecipe(recipe) {
+      const formattedText = 
+        `🍽️ Tarif: ${recipe.title}\n` +
+        `📋 Malzemeler: ${recipe.ingredients}\n` +
+        `👨‍🍳 Yapılışı: ${recipe.steps}`;
+      
+      navigator.clipboard.writeText(formattedText)
+        .then(() => alert("Tarif kopyalandı!"))
+        .catch(err => {
+          console.error("Kopyalama hatası:", err);
+          alert("Tarif kopyalanamadı.");
+        });
     }
 
     // Tarifi silme fonksiyonu
@@ -390,6 +405,12 @@
           shareBtn.title = 'Paylaş';
           shareBtn.addEventListener('click', () => shareRecipe(recipe));
           btnContainer.appendChild(shareBtn);
+
+          const copyBtn = document.createElement('button');
+          copyBtn.innerHTML = '📋';
+          copyBtn.title = 'Kopyala';
+          copyBtn.addEventListener('click', () => copyRecipe(recipe));
+          btnContainer.appendChild(copyBtn);
 
           const deleteBtn = document.createElement('button');
           deleteBtn.innerHTML = '🗑️';
