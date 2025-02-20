@@ -12,7 +12,6 @@
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      /* Animasyonlu gradient arka plan */
       background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fad0c4, #ff9a9e);
       background-size: 400% 400%;
       animation: gradientBG 15s ease infinite;
@@ -294,16 +293,28 @@
       }
     }
 
-    // Tarifi paylaşma (Web Share API)
+    // Tarifi paylaşma (Web Share API) - güncellenmiş versiyon
     function shareRecipe(recipe) {
       if (navigator.share) {
         navigator.share({
           title: recipe.title,
-          text: `Tarif: ${recipe.title} - ${recipe.category}`,
-          url: window.location.href
+          text: `Tarif: ${recipe.title}\nKategori: ${recipe.category}\nMalzemeler: ${recipe.ingredients}\nAdımlar: ${recipe.steps}`
         }).catch(error => console.error("Paylaşım hatası:", error));
       } else {
         alert("Tarayıcınız paylaşım özelliğini desteklemiyor.");
+      }
+    }
+
+    // Tarifi silme fonksiyonu
+    async function deleteRecipe(id) {
+      if (confirm("Bu tarifi silmek istediğinize emin misiniz?")) {
+        try {
+          await db.recipes.delete(id);
+          renderRecipes(currentMode);
+        } catch (error) {
+          console.error("Tarif silinirken hata:", error);
+          alert("Tarif silinirken hata oluştu: " + error.message);
+        }
       }
     }
 
@@ -379,6 +390,12 @@
           shareBtn.title = 'Paylaş';
           shareBtn.addEventListener('click', () => shareRecipe(recipe));
           btnContainer.appendChild(shareBtn);
+
+          const deleteBtn = document.createElement('button');
+          deleteBtn.innerHTML = '🗑️';
+          deleteBtn.title = 'Tarifi sil';
+          deleteBtn.addEventListener('click', () => deleteRecipe(recipe.id));
+          btnContainer.appendChild(deleteBtn);
 
           card.appendChild(btnContainer);
           listEl.appendChild(card);
