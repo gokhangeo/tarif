@@ -7,13 +7,21 @@
   <!-- Dexie.js kütüphanesi -->
   <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.3/dist/dexie.min.js"></script>
   <style>
-    /* Genel ayarlar */
+    /* Arka plan animasyonu */
     body {
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f9f9f9;
+      /* Animasyonlu gradient arka plan */
+      background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fad0c4, #ff9a9e);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
       color: #333;
+    }
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
     header {
       background: #ff6347;
@@ -46,6 +54,20 @@
     }
     nav ul li a:hover {
       background: rgba(0,0,0,0.4);
+    }
+    /* Mobil düzen: menüleri alt alta sıralayalım */
+    @media (max-width: 600px) {
+      nav ul {
+        flex-direction: column;
+        align-items: center;
+      }
+      nav ul li {
+        margin-bottom: 10px;
+      }
+      header h1 {
+        font-size: 1.6rem;
+      }
+      form input, form textarea, form select { font-size: 0.9rem; }
     }
     .container {
       max-width: 800px;
@@ -145,12 +167,6 @@
       cursor: pointer;
       font-size: 1.2rem;
     }
-    /* Mobil uyumlu */
-    @media (max-width: 600px) {
-      nav ul { gap: 10px; }
-      header h1 { font-size: 1.6rem; }
-      form input, form textarea, form select { font-size: 0.9rem; }
-    }
   </style>
 </head>
 <body>
@@ -159,7 +175,7 @@
     <nav>
       <ul>
         <li><a href="#" onclick="showSection('addRecipeSection')">Tarif Ekle</a></li>
-        <li><a href="#" onclick="showSection('listRecipeSection'); renderRecipes();">Tarif Listesi</a></li>
+        <li><a href="#" onclick="showSection('listRecipeSection'); renderRecipes('all');">Tarif Listesi</a></li>
         <li><a href="#" onclick="showSection('favRecipeSection'); renderRecipes('favorite');">Favori Tarifler</a></li>
       </ul>
     </nav>
@@ -188,7 +204,7 @@
     <!-- Tarif Listesi Bölümü -->
     <section id="listRecipeSection">
       <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Tarif ara...">
+        <input type="text" id="searchInput" placeholder="Tarif ara..." oninput="renderRecipes('all')">
       </div>
       <div class="recipe-list" id="recipeList">
         <p>Henüz tarif eklenmedi.</p>
@@ -198,7 +214,7 @@
     <!-- Favori Tarifler Bölümü -->
     <section id="favRecipeSection">
       <div class="search-container">
-        <input type="text" id="favSearchInput" placeholder="Favori tarif ara...">
+        <input type="text" id="favSearchInput" placeholder="Favori tarif ara..." oninput="renderRecipes('favorite')">
       </div>
       <div class="recipe-list" id="favRecipeList">
         <p>Henüz favori tarif eklenmedi.</p>
@@ -215,9 +231,7 @@
 
     // Bölümleri göster/gizle fonksiyonu
     function showSection(sectionId) {
-      document.querySelectorAll('section').forEach(sec => {
-        sec.classList.remove('active');
-      });
+      document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
       document.getElementById(sectionId).classList.add('active');
     }
 
@@ -248,7 +262,7 @@
           alert("Tarif başarıyla eklendi!");
           document.getElementById('recipeForm').reset();
           showSection('listRecipeSection');
-          renderRecipes();
+          renderRecipes('all');
         }).catch(error => {
           console.error("Tarif eklenirken hata oluştu:", error);
           alert("Tarif eklenirken hata oluştu: " + error.message);
@@ -298,7 +312,6 @@
     // Tarifleri IndexedDB'den çekip listeleme fonksiyonu
     async function renderRecipes(mode = "all") {
       currentMode = mode;
-      // Farklı arama kutuları kullanıyoruz
       const searchInput = mode === "favorite" ? document.getElementById('favSearchInput') : document.getElementById('searchInput');
       const listEl = mode === "favorite" ? document.getElementById('favRecipeList') : document.getElementById('recipeList');
       listEl.innerHTML = '<p>Yükleniyor...</p>';
@@ -351,18 +364,16 @@
 
           card.appendChild(content);
 
-          // Butonlar bölümü
+          // Butonlar
           const btnContainer = document.createElement('div');
           btnContainer.className = 'card-buttons';
 
-          // Favori butonu (kalp simgesi)
           const favBtn = document.createElement('button');
           favBtn.innerHTML = recipe.favorite ? '❤️' : '🤍';
           favBtn.title = recipe.favorite ? 'Favoriden çıkar' : 'Favorilere ekle';
           favBtn.addEventListener('click', () => toggleFavorite(recipe.id, recipe.favorite));
           btnContainer.appendChild(favBtn);
 
-          // Paylaş butonu (emoji)
           const shareBtn = document.createElement('button');
           shareBtn.innerHTML = '📤';
           shareBtn.title = 'Paylaş';
@@ -377,13 +388,6 @@
         listEl.innerHTML = '<p>Tarifler getirilirken hata oluştu: ' + error.message + '</p>';
       }
     }
-
-    // Arama kutularına canlı dinleyici ekleyelim
-    document.getElementById('searchInput').addEventListener('input', () => renderRecipes("all"));
-    document.getElementById('favSearchInput').addEventListener('input', () => renderRecipes("favorite"));
-
-    // İlk açılışta "Tarif Ekle" bölümünü göster
-    showSection('addRecipeSection');
   </script>
 </body>
 </html>
