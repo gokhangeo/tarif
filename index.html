@@ -3,75 +3,222 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Yemek Tarifi Uygulaması (IndexedDB ile)</title>
-  <!-- Dexie.js kütüphanesini ekliyoruz -->
+  <title>GÜLER YEMEK TARİFLERİ</title>
+  <!-- Dexie.js kütüphanesi -->
   <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.3/dist/dexie.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
-    header { background: #ff6347; color: #fff; padding: 1rem; text-align: center; }
-    header nav ul { list-style: none; display: flex; justify-content: center; gap: 20px; padding: 0; margin: 0; }
-    header nav ul li a { color: #fff; text-decoration: none; font-weight: bold; cursor: pointer; }
-    .container { max-width: 800px; margin: 20px auto; padding: 0 10px; }
-    form { background: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    form input, form textarea, form select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 3px; }
-    form button { background: #ff6347; color: #fff; border: none; padding: 10px 20px; border-radius: 3px; cursor: pointer; }
-    .recipe-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
-    .recipe-card { background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; }
-    .recipe-card img { width: 100%; height: 100px; object-fit: cover; }
-    .recipe-card .content { padding: 10px; }
-    .recipe-card h3 { margin-top: 0; font-size: 1.1rem; }
-    section { margin: 20px auto; padding: 0 10px; max-width: 800px; }
+    /* Genel ayarlar */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+    }
+    header {
+      background: #ff6347;
+      padding: 1rem;
+      text-align: center;
+      color: #fff;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+    }
+    nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 0 0;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    nav ul li a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      background: rgba(0,0,0,0.2);
+      transition: background 0.3s;
+    }
+    nav ul li a:hover {
+      background: rgba(0,0,0,0.4);
+    }
+    .container {
+      max-width: 800px;
+      margin: 1rem auto;
+      padding: 0 1rem;
+    }
+    form {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+    }
+    form input, form textarea, form select {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    form button {
+      background: #ff6347;
+      border: none;
+      color: #fff;
+      padding: 0.8rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+    form button:hover {
+      background: #e5533d;
+    }
+    /* Bölüm ayarları */
+    section { display: none; }
+    section.active { display: block; }
+    /* Arama alanı */
+    .search-container {
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .search-container input {
+      flex: 1;
+      padding: 0.6rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    /* Tarif kartları */
+    .recipe-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 15px;
+    }
+    .recipe-card {
+      background: #fff;
+      border-radius: 5px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s;
+    }
+    .recipe-card:hover {
+      transform: translateY(-3px);
+    }
+    .recipe-card img {
+      width: 100%;
+      height: 90px;
+      object-fit: cover;
+    }
+    .recipe-card .content {
+      padding: 0.8rem;
+      flex: 1;
+    }
+    .recipe-card h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .recipe-card p {
+      margin: 0.3rem 0;
+      font-size: 0.9rem;
+      line-height: 1.2;
+    }
+    .card-buttons {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0.8rem 0.8rem 0.8rem;
+    }
+    .card-buttons button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+    /* Mobil uyumlu */
+    @media (max-width: 600px) {
+      nav ul { gap: 10px; }
+      header h1 { font-size: 1.6rem; }
+      form input, form textarea, form select { font-size: 0.9rem; }
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Yemek Tarifi Uygulaması</h1>
+    <h1>GÜLER YEMEK TARİFLERİ</h1>
     <nav>
       <ul>
         <li><a href="#" onclick="showSection('addRecipeSection')">Tarif Ekle</a></li>
         <li><a href="#" onclick="showSection('listRecipeSection'); renderRecipes();">Tarif Listesi</a></li>
+        <li><a href="#" onclick="showSection('favRecipeSection'); renderRecipes('favorite');">Favori Tarifler</a></li>
       </ul>
     </nav>
   </header>
 
-  <!-- Tarif Ekle Bölümü -->
-  <section id="addRecipeSection" class="container">
-    <form id="recipeForm">
-      <h2>Tarif Ekle</h2>
-      <input type="text" id="title" placeholder="Tarif Başlığı" required>
-      <select id="category" required>
-        <option value="">Kategori Seç</option>
-        <option value="Ana Yemek">Ana Yemek</option>
-        <option value="Tatlı">Tatlı</option>
-        <option value="Atıştırmalık">Atıştırmalık</option>
-        <option value="İçecek">İçecek</option>
-      </select>
-      <textarea id="ingredients" placeholder="Malzemeler (virgülle ayrılmış)" required></textarea>
-      <textarea id="steps" placeholder="Adımlar (her adım yeni satırda)" required></textarea>
-      <input type="file" id="image" accept="image/*">
-      <button type="submit">Tarif Ekle</button>
-    </form>
-  </section>
+  <div class="container">
+    <!-- Tarif Ekle Bölümü -->
+    <section id="addRecipeSection" class="active">
+      <form id="recipeForm">
+        <h2>Tarif Ekle</h2>
+        <input type="text" id="title" placeholder="Tarif Başlığı" required>
+        <select id="category" required>
+          <option value="">Kategori Seç</option>
+          <option value="Ana Yemek">Ana Yemek</option>
+          <option value="Tatlı">Tatlı</option>
+          <option value="Atıştırmalık">Atıştırmalık</option>
+          <option value="İçecek">İçecek</option>
+        </select>
+        <textarea id="ingredients" placeholder="Malzemeler (virgülle ayrılmış)" required></textarea>
+        <textarea id="steps" placeholder="Adımlar (her adım yeni satırda)" required></textarea>
+        <input type="file" id="image" accept="image/*">
+        <button type="submit">Tarif Ekle</button>
+      </form>
+    </section>
 
-  <!-- Tarif Listesi Bölümü -->
-  <section id="listRecipeSection" class="container" style="display: none;">
-    <div class="recipe-list" id="recipeList">
-      <p>Henüz tarif eklenmedi.</p>
-    </div>
-  </section>
+    <!-- Tarif Listesi Bölümü -->
+    <section id="listRecipeSection">
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Tarif ara...">
+      </div>
+      <div class="recipe-list" id="recipeList">
+        <p>Henüz tarif eklenmedi.</p>
+      </div>
+    </section>
+
+    <!-- Favori Tarifler Bölümü -->
+    <section id="favRecipeSection">
+      <div class="search-container">
+        <input type="text" id="favSearchInput" placeholder="Favori tarif ara...">
+      </div>
+      <div class="recipe-list" id="favRecipeList">
+        <p>Henüz favori tarif eklenmedi.</p>
+      </div>
+    </section>
+  </div>
 
   <script>
     // Dexie ile IndexedDB veritabanını oluşturuyoruz
     const db = new Dexie("TarifDB");
     db.version(1).stores({
-      recipes: "++id, title, category, ingredients, steps, image, timestamp"
+      recipes: "++id, title, category, ingredients, steps, image, favorite, timestamp"
     });
 
     // Bölümleri göster/gizle fonksiyonu
     function showSection(sectionId) {
-      document.getElementById('addRecipeSection').style.display = 'none';
-      document.getElementById('listRecipeSection').style.display = 'none';
-      document.getElementById(sectionId).style.display = 'block';
+      document.querySelectorAll('section').forEach(sec => {
+        sec.classList.remove('active');
+      });
+      document.getElementById(sectionId).classList.add('active');
     }
 
     // Tarif ekleme formu submit işlemi
@@ -88,7 +235,6 @@
         return;
       }
 
-      // Resim yüklenmişse, base64'e dönüştürüp ekleyelim
       function addRecipe(imageData) {
         db.recipes.add({
           title,
@@ -96,6 +242,7 @@
           ingredients,
           steps,
           image: imageData || '',
+          favorite: false,
           timestamp: Date.now()
         }).then(() => {
           alert("Tarif başarıyla eklendi!");
@@ -123,56 +270,119 @@
       }
     });
 
-    // Tarifleri IndexedDB'den çekip listeleme fonksiyonu
-    async function renderRecipes() {
-      const recipeList = document.getElementById('recipeList');
-      recipeList.innerHTML = '<p>Yükleniyor...</p>';
+    // Favori durumunu güncelleme
+    async function toggleFavorite(id, currentStatus) {
       try {
-        const recipes = await db.recipes.orderBy('timestamp').reverse().toArray();
+        await db.recipes.update(id, { favorite: !currentStatus });
+        renderRecipes(currentMode);
+      } catch (error) {
+        console.error("Favori güncellenirken hata:", error);
+      }
+    }
+
+    // Tarifi paylaşma (Web Share API)
+    function shareRecipe(recipe) {
+      if (navigator.share) {
+        navigator.share({
+          title: recipe.title,
+          text: `Tarif: ${recipe.title} - ${recipe.category}`,
+          url: window.location.href
+        }).catch(error => console.error("Paylaşım hatası:", error));
+      } else {
+        alert("Tarayıcınız paylaşım özelliğini desteklemiyor.");
+      }
+    }
+
+    let currentMode = "all"; // "all" veya "favorite"
+
+    // Tarifleri IndexedDB'den çekip listeleme fonksiyonu
+    async function renderRecipes(mode = "all") {
+      currentMode = mode;
+      // Farklı arama kutuları kullanıyoruz
+      const searchInput = mode === "favorite" ? document.getElementById('favSearchInput') : document.getElementById('searchInput');
+      const listEl = mode === "favorite" ? document.getElementById('favRecipeList') : document.getElementById('recipeList');
+      listEl.innerHTML = '<p>Yükleniyor...</p>';
+      try {
+        let recipes = await db.recipes.orderBy('timestamp').reverse().toArray();
+        if (mode === "favorite") {
+          recipes = recipes.filter(r => r.favorite);
+        }
+        // Arama filtresi
+        const searchText = searchInput.value.trim().toLowerCase();
+        if (searchText) {
+          recipes = recipes.filter(r => 
+            r.title.toLowerCase().includes(searchText) ||
+            r.ingredients.toLowerCase().includes(searchText)
+          );
+        }
         if (recipes.length === 0) {
-          recipeList.innerHTML = '<p>Henüz tarif eklenmedi.</p>';
+          listEl.innerHTML = `<p>Henüz ${mode === "favorite" ? "favori " : ""}tarif eklenmedi.</p>`;
           return;
         }
-        recipeList.innerHTML = '';
+        listEl.innerHTML = '';
         recipes.forEach(recipe => {
           const card = document.createElement('div');
           card.className = 'recipe-card';
-  
+
           if (recipe.image) {
             const img = document.createElement('img');
             img.src = recipe.image;
             card.appendChild(img);
           }
-  
+
           const content = document.createElement('div');
           content.className = 'content';
-  
+
           const titleElem = document.createElement('h3');
           titleElem.textContent = recipe.title;
           content.appendChild(titleElem);
-  
+
           const cat = document.createElement('p');
           cat.textContent = 'Kategori: ' + recipe.category;
           content.appendChild(cat);
-  
+
           const ing = document.createElement('p');
           ing.textContent = 'Malzemeler: ' + recipe.ingredients;
           content.appendChild(ing);
-  
+
           const stepsElem = document.createElement('p');
           stepsElem.textContent = 'Adımlar: ' + recipe.steps;
           content.appendChild(stepsElem);
-  
+
           card.appendChild(content);
-          recipeList.appendChild(card);
+
+          // Butonlar bölümü
+          const btnContainer = document.createElement('div');
+          btnContainer.className = 'card-buttons';
+
+          // Favori butonu (kalp simgesi)
+          const favBtn = document.createElement('button');
+          favBtn.innerHTML = recipe.favorite ? '❤️' : '🤍';
+          favBtn.title = recipe.favorite ? 'Favoriden çıkar' : 'Favorilere ekle';
+          favBtn.addEventListener('click', () => toggleFavorite(recipe.id, recipe.favorite));
+          btnContainer.appendChild(favBtn);
+
+          // Paylaş butonu (emoji)
+          const shareBtn = document.createElement('button');
+          shareBtn.innerHTML = '📤';
+          shareBtn.title = 'Paylaş';
+          shareBtn.addEventListener('click', () => shareRecipe(recipe));
+          btnContainer.appendChild(shareBtn);
+
+          card.appendChild(btnContainer);
+          listEl.appendChild(card);
         });
       } catch (error) {
         console.error("Tarifler getirilirken hata oluştu:", error);
-        recipeList.innerHTML = '<p>Tarifler getirilirken hata oluştu: ' + error.message + '</p>';
+        listEl.innerHTML = '<p>Tarifler getirilirken hata oluştu: ' + error.message + '</p>';
       }
     }
 
-    // Uygulama ilk açıldığında "Tarif Ekle" bölümünü göster
+    // Arama kutularına canlı dinleyici ekleyelim
+    document.getElementById('searchInput').addEventListener('input', () => renderRecipes("all"));
+    document.getElementById('favSearchInput').addEventListener('input', () => renderRecipes("favorite"));
+
+    // İlk açılışta "Tarif Ekle" bölümünü göster
     showSection('addRecipeSection');
   </script>
 </body>
