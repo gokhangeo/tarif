@@ -1,431 +1,852 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GÜLER YEMEK TARİFLERİ</title>
-  <!-- Dexie.js kütüphanesi -->
-  <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.3/dist/dexie.min.js"></script>
-  <style>
-    /* Arka plan animasyonu */
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fad0c4, #ff9a9e);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-      color: #333;
-    }
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    header {
-      background: #ff6347;
-      padding: 1rem;
-      text-align: center;
-      color: #fff;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 1.8rem;
-      letter-spacing: 1px;
-    }
-    nav ul {
-      list-style: none;
-      padding: 0;
-      margin: 1rem 0 0 0;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-    nav ul li a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      background: rgba(0,0,0,0.2);
-      transition: background 0.3s;
-    }
-    nav ul li a:hover {
-      background: rgba(0,0,0,0.4);
-    }
-    /* Mobil düzen: menüleri alt alta sıralayalım */
-    @media (max-width: 600px) {
-      nav ul {
-        flex-direction: column;
-        align-items: center;
-      }
-      nav ul li {
-        margin-bottom: 10px;
-      }
-      header h1 {
-        font-size: 1.6rem;
-      }
-      form input, form textarea, form select { font-size: 0.9rem; }
-    }
-    .container {
-      max-width: 800px;
-      margin: 1rem auto;
-      padding: 0 1rem;
-    }
-    form {
-      background: #fff;
-      padding: 1rem;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom: 1.5rem;
-    }
-    form input, form textarea, form select {
-      width: 100%;
-      padding: 0.8rem;
-      margin: 0.5rem 0;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-    form button {
-      background: #ff6347;
-      border: none;
-      color: #fff;
-      padding: 0.8rem 1.5rem;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background 0.3s;
-    }
-    form button:hover {
-      background: #e5533d;
-    }
-    /* Bölüm ayarları */
-    section { display: none; }
-    section.active { display: block; }
-    /* Arama alanı */
-    .search-container {
-      margin-bottom: 1rem;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-    .search-container input {
-      flex: 1;
-      padding: 0.6rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    /* Tarif kartları */
-    .recipe-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 15px;
-    }
-    .recipe-card {
-      background: #fff;
-      border-radius: 5px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.2s;
-    }
-    .recipe-card:hover {
-      transform: translateY(-3px);
-    }
-    .recipe-card img {
-      width: 100%;
-      height: 90px;
-      object-fit: cover;
-    }
-    .recipe-card .content {
-      padding: 0.8rem;
-      flex: 1;
-    }
-    .recipe-card h3 {
-      margin: 0;
-      font-size: 1.1rem;
-      margin-bottom: 0.5rem;
-    }
-    .recipe-card p {
-      margin: 0.3rem 0;
-      font-size: 0.9rem;
-      line-height: 1.2;
-    }
-    .card-buttons {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.5rem 0.8rem 0.8rem 0.8rem;
-    }
-    .card-buttons button {
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      font-size: 1.2rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Güler Detoks Asistanı</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js for Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Temel Stil Ayarları */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* bg-slate-900 */
+            color: #f8fafc; /* text-slate-50 */
+        }
+        /* Özel Kaydırma Çubuğu Stilleri */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #06b6d4; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #0891b2; }
+        /* Yükleme animasyonu için */
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        /* Diyet Tablosu Stilleri */
+        .diet-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+        .diet-table th, .diet-table td {
+            border: 1px solid #334155; /* bg-slate-700 */
+            padding: 0.75rem;
+            text-align: left;
+            vertical-align: top;
+        }
+        .diet-table th {
+            background-color: #1e293b; /* bg-slate-800 */
+            font-weight: bold;
+            color: #94a3b8; /* text-slate-400 */
+        }
+        .diet-table td {
+            background-color: #0f172a; /* bg-slate-900 */
+        }
+        /* Alışveriş ve Egzersiz Listesi Stilleri */
+        .list-item.completed span {
+            text-decoration: line-through;
+            color: #64748b; /* text-slate-500 */
+        }
+        .list-group-title {
+            font-weight: bold;
+            color: #94a3b8; /* text-slate-400 */
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.25rem;
+            border-bottom: 1px solid #334155;
+        }
+    </style>
 </head>
-<body>
-  <header>
-    <h1>GÜLER YEMEK TARİFLERİ</h1>
-    <nav>
-      <ul>
-        <li><a href="#" onclick="showSection('addRecipeSection')">Tarif Ekle</a></li>
-        <li><a href="#" onclick="showSection('listRecipeSection'); renderRecipes('all');">Tarif Listesi</a></li>
-        <li><a href="#" onclick="showSection('favRecipeSection'); renderRecipes('favorite');">Favori Tarifler</a></li>
-      </ul>
+<body class="min-h-screen p-4 pb-24">
+
+    <!-- Ana Uygulama Konteyneri -->
+    <div id="app-container">
+        <!-- Başlık Bölümü -->
+        <header class="text-center mb-6">
+            <div class="flex items-center justify-center gap-3">
+                <i data-lucide="dna" class="text-cyan-400 w-8 h-8"></i>
+                <h1 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-teal-300">
+                    Güler Detoks Asistanı
+                </h1>
+            </div>
+            <p class="text-gray-400 mt-2">Sağlıklı yaşama modern bir dokunuş</p>
+            <!-- Günün İpucu Alanı -->
+            <div id="tip-of-the-day" class="mt-4 text-sm text-amber-300 bg-amber-500/10 p-3 rounded-lg border border-amber-500/30 hidden items-center gap-3">
+                <i data-lucide="lightbulb" class="w-5 h-5 flex-shrink-0"></i>
+                <span id="tip-text"></span>
+            </div>
+            <!-- Mesaj Alanları -->
+            <div id="error-message" class="hidden mt-4 bg-red-500/20 border border-red-500 text-red-300 p-3 rounded-lg"></div>
+            <div id="success-message" class="hidden mt-4 bg-green-500/20 border border-green-500 text-green-300 p-3 rounded-lg"></div>
+        </header>
+
+        <!-- Ana İçerik Alanı -->
+        <main>
+            <!-- Tarif Arama ve Kategori Görünümü -->
+            <div id="recipe-categories-view">
+                 <h2 class="text-2xl font-bold text-cyan-300 mb-4 text-center">Tarifleri Keşfet</h2>
+                 <!-- Arama Çubuğu -->
+                 <form id="recipe-search-form" class="flex gap-2 mb-6">
+                    <input id="recipe-search-input" type="search" placeholder="Örn: Naneli ve ferahlatıcı bir içecek" class="w-full bg-gray-700 text-white placeholder-gray-400 rounded-lg p-3 border-2 border-transparent focus:outline-none focus:border-cyan-400 transition-colors" />
+                    <button type="submit" class="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold p-3 rounded-lg transition-colors"><i data-lucide="search"></i></button>
+                 </form>
+                 
+                 <h3 class="text-lg font-semibold text-gray-400 mb-4 text-center">Veya Hızlı Kategoriler</h3>
+                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <button data-category="detox" class="category-btn bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold py-8 px-4 rounded-lg flex flex-col items-center justify-center gap-2 transition-colors duration-300">
+                        <i data-lucide="blender" class="w-8 h-8"></i>
+                        <span>Genel Detoks</span>
+                    </button>
+                    <button data-category="lipoedema" class="category-btn bg-indigo-500 hover:bg-indigo-400 text-slate-900 font-bold py-8 px-4 rounded-lg flex flex-col items-center justify-center gap-2 transition-colors duration-300">
+                        <i data-lucide="soup" class="w-8 h-8"></i>
+                        <span>Lipödem Çorbaları</span>
+                    </button>
+                    <button data-category="diuretic" class="category-btn bg-sky-500 hover:bg-sky-400 text-slate-900 font-bold py-8 px-4 rounded-lg flex flex-col items-center justify-center gap-2 transition-colors duration-300">
+                        <i data-lucide="glass-water" class="w-8 h-8"></i>
+                        <span>Ödem Atıcılar</span>
+                    </button>
+                    <button data-category="herbal-tea" class="category-btn bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold py-8 px-4 rounded-lg flex flex-col items-center justify-center gap-2 transition-colors duration-300">
+                        <i data-lucide="coffee" class="w-8 h-8"></i>
+                        <span>Bitki Çayları</span>
+                    </button>
+                 </div>
+                 <div id="recipe-list-view" class="hidden mt-6">
+                    <button id="back-to-categories-btn" class="mb-4 text-cyan-400 hover:text-cyan-300 flex items-center gap-2"><i data-lucide="arrow-left"></i> Geri Dön</button>
+                    <h2 id="recipe-list-title" class="text-2xl font-bold text-cyan-300 mb-4"></h2>
+                    <div id="recipes-loader" class="text-center text-gray-400"><p>Yapay zeka şefimiz tarifleri hazırlıyor...</p></div>
+                    <div id="recipes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    <button id="refresh-category-btn" class="hidden mt-6 w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
+                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                        Bu Arama İçin Yeni Tarifler Getir
+                    </button>
+                 </div>
+            </div>
+
+            <!-- Diyet Listesi Görünümü -->
+            <div id="diet-view" class="hidden bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/10">
+                <h2 class="text-2xl font-bold text-cyan-300 mb-4">Beslenme Planları</h2>
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <button id="lipoedema-diet-btn" class="w-full bg-indigo-500 hover:bg-indigo-400 text-slate-900 font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
+                        <i data-lucide="activity" class="w-5 h-5"></i>
+                        Lipödem Diyeti Oluştur
+                    </button>
+                    <button id="general-diet-btn" class="w-full bg-green-500 hover:bg-green-400 text-slate-900 font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
+                        <i data-lucide="heart-pulse" class="w-5 h-5"></i>
+                        Genel Diyet Listesi Oluştur
+                    </button>
+                </div>
+                <div id="diet-loader" class="hidden text-center text-gray-400 my-4"><p>Yapay zeka diyetisyeniniz sizin için en uygun listeyi hazırlıyor...</p></div>
+                <div id="diet-list-container" class="hidden">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-xl font-bold text-cyan-300">Oluşturulan Diyet Listesi</h3>
+                        <button id="share-diet-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-3 rounded-lg flex items-center gap-2 text-sm"><i data-lucide="share-2" class="w-4 h-4"></i> Paylaş / Kopyala</button>
+                    </div>
+                    <div id="diet-list-content" class="custom-scrollbar overflow-x-auto"></div>
+                </div>
+            </div>
+
+            <!-- Alışveriş Listesi Görünümü -->
+            <div id="shopping-list-view" class="hidden bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/10">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-cyan-300">Alışveriş Listesi</h2>
+                    <button id="clear-shopping-list-btn" class="text-red-400 hover:text-red-300 flex items-center gap-2 text-sm"><i data-lucide="trash-2" class="w-4 h-4"></i> Listeyi Temizle</button>
+                </div>
+                <div id="shopping-list-items" class="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar"><p class="text-gray-400">Listeniz boş.</p></div>
+            </div>
+            
+            <!-- Egzersiz Planı Görünümü -->
+            <div id="exercise-view" class="hidden bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/10">
+                <h2 class="text-2xl font-bold text-cyan-300 mb-4">Günlük Egzersiz Planım</h2>
+                <form id="exercise-form" class="flex gap-2 mb-6">
+                    <input id="new-exercise-input" type="text" placeholder="Örn: 30 dk yürüyüş" class="w-full bg-gray-700 text-white placeholder-gray-400 rounded-lg p-3 border-2 border-transparent focus:outline-none focus:border-cyan-400 transition-colors" required />
+                    <button type="submit" class="bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold py-3 px-4 rounded-lg transition-colors">Ekle</button>
+                </form>
+                <div id="exercise-list-items" class="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar"><p class="text-gray-400">Bugün için egzersiz eklemediniz.</p></div>
+            </div>
+
+            <!-- Günlük Panel Görünümü -->
+            <div id="dashboard-view" class="hidden space-y-6">
+                <!-- Su Takibi -->
+                <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/10">
+                    <h2 class="text-2xl font-bold text-cyan-300 mb-4">Günlük Su Tüketimi</h2>
+                    <p class="text-sm text-gray-400 mb-4">Hedef: 15 Bardak (<span id="water-count">0</span>/15)</p>
+                    <div id="water-tracker" class="grid grid-cols-5 gap-2"></div>
+                </div>
+                 <!-- Tüketim Günlüğü -->
+                <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/10">
+                    <h2 class="text-2xl font-bold text-cyan-300 mb-4">Tüketim Günlüğüm</h2>
+                    <div id="log-list" class="space-y-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar"><p class="text-gray-400">Henüz bir şey içmediniz.</p></div>
+                </div>
+                <!-- Not Defteri -->
+                <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/10">
+                    <h2 class="text-2xl font-bold text-cyan-300 mb-4">Kişisel Not Defterim</h2>
+                    <textarea id="notes-area" class="w-full h-32 bg-slate-800/50 rounded-lg p-3 text-gray-300 placeholder-gray-500 focus:outline-none focus:border-cyan-400 border-2 border-transparent transition-colors" placeholder="Bugünkü hedeflerinizi, hislerinizi veya notlarınızı buraya yazın..."></textarea>
+                </div>
+            </div>
+
+            <!-- Kilo Takibi Görünümü -->
+            <div id="weight-view" class="hidden bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/10 space-y-6">
+                <h2 class="text-2xl font-bold text-cyan-300">Kilo Gelişim Panosu</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="bg-slate-800/50 p-4 rounded-lg"><p class="text-sm text-gray-400">Başlangıç</p><p id="start-weight" class="text-2xl font-bold text-white">- kg</p></div>
+                    <div class="bg-slate-800/50 p-4 rounded-lg"><p class="text-sm text-gray-400">Mevcut</p><p id="current-weight" class="text-2xl font-bold text-white">- kg</p></div>
+                    <div class="bg-slate-800/50 p-4 rounded-lg"><p class="text-sm text-gray-400">Toplam Değişim</p><p id="total-change" class="text-2xl font-bold text-white">- kg</p></div>
+                </div>
+                <div class="h-64"><canvas id="weight-chart"></canvas></div>
+                <form id="weight-form" class="flex gap-2">
+                    <input id="new-weight-input" type="number" step="0.1" placeholder="Örn: 75.5" class="w-full bg-gray-700 text-white placeholder-gray-400 rounded-lg p-3 border-2 border-transparent focus:outline-none focus:border-teal-400 transition-colors" required />
+                    <button type="submit" class="bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold py-3 px-4 rounded-lg transition-colors">Ekle</button>
+                </form>
+                <div>
+                    <h3 class="text-xl font-bold text-cyan-300 mb-3">Kayıt Geçmişi</h3>
+                    <div id="weight-history-list" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-2"><p class="text-gray-400 text-sm">Henüz kilo kaydı girmediniz.</p></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Alt Navigasyon Çubuğu -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-gray-900/80 backdrop-blur-sm border-t border-cyan-500/30 p-2 grid grid-cols-6 gap-1">
+        <button data-view="recipe-categories" class="nav-btn flex flex-col items-center justify-center w-full py-2 rounded-lg transition-colors duration-300 text-cyan-400 bg-cyan-500/10"><i data-lucide="book-open"></i><span class="text-xs mt-1 font-medium">Tarifler</span></button>
+        <button data-view="diet" class="nav-btn flex flex-col items-center justify-center w-full py-2 rounded-lg transition-colors duration-300 text-gray-400 hover:bg-gray-700/50"><i data-lucide="clipboard-list"></i><span class="text-xs mt-1 font-medium">Beslenme</span></button>
+        <button data-view="dashboard" class="nav-btn flex flex-col items-center justify-center w-full py-2 rounded-lg transition-colors duration-300 text-gray-400 hover:bg-gray-700/50"><i data-lucide="layout-dashboard"></i><span class="text-xs mt-1 font-medium">Panel</span></button>
+        <button data-view="exercise" class="nav-btn flex flex-col items-center justify-center w-full py-2 rounded-lg transition-colors duration-300 text-gray-400 hover:bg-gray-700/50"><i data-lucide="swords"></i><span class="text-xs mt-1 font-medium">Egzersiz</span></button>
+        <button data-view="shopping-list" class="nav-btn flex flex-col items-center justify-center w-full py-2 rounded-lg transition-colors duration-300 text-gray-400 hover:bg-gray-700/50"><i data-lucide="shopping-cart"></i><span class="text-xs mt-1 font-medium">Liste</span></button>
+        <button data-view="weight" class="nav-btn flex flex-col items-center justify-center w-full py-2 rounded-lg transition-colors duration-300 text-gray-400 hover:bg-gray-700/50"><i data-lucide="weight"></i><span class="text-xs mt-1 font-medium">Kilo</span></button>
     </nav>
-  </header>
 
-  <div class="container">
-    <!-- Tarif Ekle Bölümü -->
-    <section id="addRecipeSection" class="active">
-      <form id="recipeForm">
-        <h2>Tarif Ekle</h2>
-        <input type="text" id="title" placeholder="Tarif Başlığı" required>
-        <select id="category" required>
-          <option value="">Kategori Seç</option>
-          <option value="Ana Yemek">Ana Yemek</option>
-          <option value="Tatlı">Tatlı</option>
-          <option value="Atıştırmalık">Atıştırmalık</option>
-          <option value="İçecek">İçecek</option>
-        </select>
-        <textarea id="ingredients" placeholder="Malzemeler (virgülle ayrılmış)" required></textarea>
-        <textarea id="steps" placeholder="Adımlar (her adım yeni satırda)" required></textarea>
-        <input type="file" id="image" accept="image/*">
-        <button type="submit">Tarif Ekle</button>
-      </form>
-    </section>
+    <!-- Uygulama Mantığı -->
+    <script type="module">
+        // --- DEĞİŞKENLER VE SABİTLER ---
+        const apiKeys = [
+            "AIzaSyBPpW33vp0fo5rf9vEiJ4ii3dHC-WXxX50",
+            "AIzaSyCapRQxug8xovJoQIYQUBew1edQAqJweMw",
+            "AIzaSyDpXMmXusv4xXcxMDHbDzm8_9EQIBXsKo4"
+        ];
+        let currentApiKeyIndex = 0;
 
-    <!-- Tarif Listesi Bölümü -->
-    <section id="listRecipeSection">
-      <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Tarif ara..." oninput="renderRecipes('all')">
-      </div>
-      <div class="recipe-list" id="recipeList">
-        <p>Henüz tarif eklenmedi.</p>
-      </div>
-    </section>
+        let weightChart;
+        let localRecipes = [];
+        let dailyLog = [];
+        let weightData = [];
+        let shoppingList = [];
+        let exerciseList = [];
+        let waterData = { date: '', count: 0 };
+        let notes = '';
+        let chatHistory = [];
+        let lastRecipeQuery = '';
 
-    <!-- Favori Tarifler Bölümü -->
-    <section id="favRecipeSection">
-      <div class="search-container">
-        <input type="text" id="favSearchInput" placeholder="Favori tarif ara..." oninput="renderRecipes('favorite')">
-      </div>
-      <div class="recipe-list" id="favRecipeList">
-        <p>Henüz favori tarif eklenmedi.</p>
-      </div>
-    </section>
-  </div>
-
-  <script>
-    // Dexie ile IndexedDB veritabanını oluşturuyoruz
-    const db = new Dexie("TarifDB");
-    db.version(1).stores({
-      recipes: "++id, title, category, ingredients, steps, image, favorite, timestamp"
-    });
-
-    // Bölümleri göster/gizle fonksiyonu
-    function showSection(sectionId) {
-      document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
-      document.getElementById(sectionId).classList.add('active');
-    }
-
-    // Tarif ekleme formu submit işlemi
-    document.getElementById('recipeForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const title = document.getElementById('title').value.trim();
-      const category = document.getElementById('category').value;
-      const ingredients = document.getElementById('ingredients').value.trim();
-      const steps = document.getElementById('steps').value.trim();
-      const imageInput = document.getElementById('image');
-
-      if (!title || !category || !ingredients || !steps) {
-        alert("Lütfen tüm alanları doldurun.");
-        return;
-      }
-
-      function addRecipe(imageData) {
-        db.recipes.add({
-          title,
-          category,
-          ingredients,
-          steps,
-          image: imageData || '',
-          favorite: false,
-          timestamp: Date.now()
-        }).then(() => {
-          alert("Tarif başarıyla eklendi!");
-          document.getElementById('recipeForm').reset();
-          showSection('listRecipeSection');
-          renderRecipes('all');
-        }).catch(error => {
-          console.error("Tarif eklenirken hata oluştu:", error);
-          alert("Tarif eklenirken hata oluştu: " + error.message);
-        });
-      }
-
-      if (imageInput.files && imageInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          addRecipe(event.target.result);
+        // --- DOM ELEMENTLERİ ---
+        const views = {
+            'recipe-categories': document.getElementById('recipe-categories-view'),
+            'diet': document.getElementById('diet-view'),
+            'dashboard': document.getElementById('dashboard-view'),
+            'shopping-list': document.getElementById('shopping-list-view'),
+            'exercise': document.getElementById('exercise-view'),
+            'weight': document.getElementById('weight-view')
         };
-        reader.onerror = function(e) {
-          console.error("Resim okunurken hata oluştu:", e);
-          alert("Resim okunurken hata oluştu. Lütfen tekrar deneyin.");
-        };
-        reader.readAsDataURL(imageInput.files[0]);
-      } else {
-        addRecipe('');
-      }
-    });
+        const recipeListView = document.getElementById('recipe-list-view');
+        const recipesGrid = document.getElementById('recipes-grid');
+        const recipesLoader = document.getElementById('recipes-loader');
+        const logList = document.getElementById('log-list');
+        const weightForm = document.getElementById('weight-form');
+        const newWeightInput = document.getElementById('new-weight-input');
+        const navButtons = document.querySelectorAll('.nav-btn');
+        const errorMessageDiv = document.getElementById('error-message');
+        const successMessageDiv = document.getElementById('success-message');
+        const startWeightEl = document.getElementById('start-weight');
+        const currentWeightEl = document.getElementById('current-weight');
+        const totalChangeEl = document.getElementById('total-change');
+        const weightHistoryListEl = document.getElementById('weight-history-list');
+        const lipoedemaDietBtn = document.getElementById('lipoedema-diet-btn');
+        const generalDietBtn = document.getElementById('general-diet-btn');
+        const dietLoader = document.getElementById('diet-loader');
+        const dietListContainer = document.getElementById('diet-list-container');
+        const dietListContent = document.getElementById('diet-list-content');
+        const shareDietBtn = document.getElementById('share-diet-btn');
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        const backToCategoriesBtn = document.getElementById('back-to-categories-btn');
+        const recipeListTitle = document.getElementById('recipe-list-title');
+        const refreshCategoryBtn = document.getElementById('refresh-category-btn');
+        const shoppingListItems = document.getElementById('shopping-list-items');
+        const clearShoppingListBtn = document.getElementById('clear-shopping-list-btn');
+        const waterTracker = document.getElementById('water-tracker');
+        const waterCountSpan = document.getElementById('water-count');
+        const notesArea = document.getElementById('notes-area');
+        const tipOfTheDayDiv = document.getElementById('tip-of-the-day');
+        const tipTextSpan = document.getElementById('tip-text');
+        const exerciseForm = document.getElementById('exercise-form');
+        const newExerciseInput = document.getElementById('new-exercise-input');
+        const exerciseListItems = document.getElementById('exercise-list-items');
+        const recipeSearchForm = document.getElementById('recipe-search-form');
+        const recipeSearchInput = document.getElementById('recipe-search-input');
 
-    // Favori durumunu güncelleme
-    async function toggleFavorite(id, currentStatus) {
-      try {
-        await db.recipes.update(id, { favorite: !currentStatus });
-        renderRecipes(currentMode);
-      } catch (error) {
-        console.error("Favori güncellenirken hata:", error);
-      }
-    }
-
-    // Tarifi paylaşma (Web Share API) - güncellenmiş versiyon
-    function shareRecipe(recipe) {
-      if (navigator.share) {
-        navigator.share({
-          title: recipe.title,
-          text: `🍽️ Tarif: ${recipe.title}\n📋 Malzemeler: ${recipe.ingredients}\n👨‍🍳 Yapılışı: ${recipe.steps}`
-        }).catch(error => console.error("Paylaşım hatası:", error));
-      } else {
-        alert("Tarayıcınız paylaşım özelliğini desteklemiyor.");
-      }
-    }
-
-    // Tarifi kopyalama fonksiyonu
-    function copyRecipe(recipe) {
-      const formattedText = 
-        `🍽️ Tarif: ${recipe.title}\n` +
-        `📋 Malzemeler: ${recipe.ingredients}\n` +
-        `👨‍🍳 Yapılışı: ${recipe.steps}`;
-      
-      navigator.clipboard.writeText(formattedText)
-        .then(() => alert("Tarif kopyalandı!"))
-        .catch(err => {
-          console.error("Kopyalama hatası:", err);
-          alert("Tarif kopyalanamadı.");
-        });
-    }
-
-    // Tarifi silme fonksiyonu
-    async function deleteRecipe(id) {
-      if (confirm("Bu tarifi silmek istediğinize emin misiniz?")) {
-        try {
-          await db.recipes.delete(id);
-          renderRecipes(currentMode);
-        } catch (error) {
-          console.error("Tarif silinirken hata:", error);
-          alert("Tarif silinirken hata oluştu: " + error.message);
+        // --- MESAJ GÖSTERİM FONKSİYONLARI ---
+        function showMessage(element, message, duration = 3000) {
+            element.textContent = message;
+            element.classList.remove('hidden');
+            setTimeout(() => { element.classList.add('hidden'); }, duration);
         }
-      }
-    }
 
-    let currentMode = "all"; // "all" veya "favorite"
-
-    // Tarifleri IndexedDB'den çekip listeleme fonksiyonu
-    async function renderRecipes(mode = "all") {
-      currentMode = mode;
-      const searchInput = mode === "favorite" ? document.getElementById('favSearchInput') : document.getElementById('searchInput');
-      const listEl = mode === "favorite" ? document.getElementById('favRecipeList') : document.getElementById('recipeList');
-      listEl.innerHTML = '<p>Yükleniyor...</p>';
-      try {
-        let recipes = await db.recipes.orderBy('timestamp').reverse().toArray();
-        if (mode === "favorite") {
-          recipes = recipes.filter(r => r.favorite);
+        // --- GÖRÜNÜM DEĞİŞTİRME ---
+        function switchView(viewName) {
+            Object.values(views).forEach(view => view.classList.add('hidden'));
+            if (views[viewName]) views[viewName].classList.remove('hidden');
+            navButtons.forEach(btn => {
+                const isSelected = btn.dataset.view === viewName;
+                btn.classList.toggle('text-cyan-400', isSelected);
+                btn.classList.toggle('bg-cyan-500/10', isSelected);
+                btn.classList.toggle('text-gray-400', !isSelected);
+                btn.classList.toggle('hover:bg-gray-700/50', !isSelected);
+            });
         }
-        // Arama filtresi
-        const searchText = searchInput.value.trim().toLowerCase();
-        if (searchText) {
-          recipes = recipes.filter(r => 
-            r.title.toLowerCase().includes(searchText) ||
-            r.ingredients.toLowerCase().includes(searchText)
-          );
+
+        // --- VERİ YÖNETİMİ (localStorage) ---
+        function loadDataFromStorage() {
+            try {
+                dailyLog = JSON.parse(localStorage.getItem('gulerDetoxLog_v4')) || [];
+                weightData = JSON.parse(localStorage.getItem('gulerDetoxWeight_v4')) || [];
+                shoppingList = JSON.parse(localStorage.getItem('gulerDetoxShopping_v4')) || [];
+                notes = localStorage.getItem('gulerDetoxNotes_v4') || '';
+                
+                const today = new Date().toISOString().slice(0, 10);
+                
+                const storedWater = JSON.parse(localStorage.getItem('gulerDetoxWater_v4'));
+                if (storedWater && storedWater.date === today) {
+                    waterData = storedWater;
+                } else {
+                    waterData = { date: today, count: 0 };
+                    saveWaterToStorage();
+                }
+                
+                const storedExercises = JSON.parse(localStorage.getItem('gulerDetoxExercise_v4'));
+                if (storedExercises && storedExercises.date === today) {
+                    exerciseList = storedExercises.list;
+                } else {
+                    exerciseList = [];
+                    saveExerciseToStorage();
+                }
+
+            } catch (e) { console.error("Yerel veriler okunurken hata oluştu:", e); }
         }
-        if (recipes.length === 0) {
-          listEl.innerHTML = `<p>Henüz ${mode === "favorite" ? "favori " : ""}tarif eklenmedi.</p>`;
-          return;
+        function saveLogToStorage() { localStorage.setItem('gulerDetoxLog_v4', JSON.stringify(dailyLog)); }
+        function saveWeightToStorage() { localStorage.setItem('gulerDetoxWeight_v4', JSON.stringify(weightData)); }
+        function saveShoppingListToStorage() { localStorage.setItem('gulerDetoxShopping_v4', JSON.stringify(shoppingList)); }
+        function saveWaterToStorage() { localStorage.setItem('gulerDetoxWater_v4', JSON.stringify(waterData)); }
+        function saveNotesToStorage() { localStorage.setItem('gulerDetoxNotes_v4', notes); }
+        function saveExerciseToStorage() { 
+            const today = new Date().toISOString().slice(0, 10);
+            localStorage.setItem('gulerDetoxExercise_v4', JSON.stringify({ date: today, list: exerciseList }));
         }
-        listEl.innerHTML = '';
-        recipes.forEach(recipe => {
-          const card = document.createElement('div');
-          card.className = 'recipe-card';
 
-          if (recipe.image) {
-            const img = document.createElement('img');
-            img.src = recipe.image;
-            card.appendChild(img);
-          }
+        // --- RENDER FONKSİYONLARI ---
+        function renderAll() { renderLog(); renderWeightView(); renderShoppingList(); renderWaterTracker(); renderNotes(); renderExercisePlan(); }
+        
+        function renderRecipes(recipes) {
+            recipesGrid.innerHTML = '';
+            if (!Array.isArray(recipes) || recipes.length === 0) {
+                recipesLoader.classList.remove('hidden');
+                recipesLoader.textContent = 'Uygun tarif bulunamadı veya bir hata oluştu.';
+                refreshCategoryBtn.classList.add('hidden');
+                return;
+            }
+            recipesLoader.classList.add('hidden');
+            refreshCategoryBtn.classList.remove('hidden');
+            recipes.forEach((recipe, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 flex flex-col";
+                card.innerHTML = `<div class="flex-grow"><h3 class="text-2xl font-bold text-cyan-300 mb-2">${recipe.recipeName}</h3><p class="text-gray-300 mb-4 text-sm">${recipe.description||''}</p><div class="mb-4"><h4 class="font-semibold text-lg text-white mb-2">Malzemeler</h4><ul class="list-disc list-inside text-gray-300 space-y-1">${(recipe.ingredients||[]).map(ing=>`<li>${ing}</li>`).join('')}</ul></div><div><h4 class="font-semibold text-lg text-white mb-2">Hazırlanışı</h4><ol class="list-decimal list-inside text-gray-300 space-y-1">${(recipe.instructions||[]).map(step=>`<li>${step}</li>`).join('')}</ol></div></div><div class="flex gap-2 mt-6"><button data-recipe-index="${index}" class="add-log-btn w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-300"><i data-lucide="plus-circle" class="w-5 h-5"></i> İçtim</button><button data-recipe-index="${index}" class="add-to-shopping-list-btn w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-300"><i data-lucide="shopping-cart" class="w-5 h-5"></i> Listeye Ekle</button></div>`;
+                recipesGrid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
 
-          const content = document.createElement('div');
-          content.className = 'content';
+        function renderLog() {
+            logList.innerHTML = '';
+            const sortedLog = [...dailyLog].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            if (sortedLog.length === 0) { logList.innerHTML = '<p class="text-gray-400">Henüz bir şey içmediniz.</p>'; return; }
+            sortedLog.forEach(log => {
+                const logItem = document.createElement('div');
+                logItem.className = "bg-gray-800/50 p-3 rounded-lg flex justify-between items-center";
+                logItem.innerHTML = `<div><span class="font-semibold text-gray-200">${log.recipeName}</span><span class="block text-xs text-gray-400">${new Date(log.timestamp).toLocaleString('tr-TR')}</span></div><button data-id="${log.id}" class="delete-log-btn text-red-400 hover:text-red-300 p-2 rounded-full"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`;
+                logList.appendChild(logItem);
+            });
+            lucide.createIcons();
+        }
 
-          const titleElem = document.createElement('h3');
-          titleElem.textContent = recipe.title;
-          content.appendChild(titleElem);
+        function renderWeightView() {
+            const sortedWeight = [...weightData].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            if (sortedWeight.length > 0) {
+                const startWeight = sortedWeight[0].weight;
+                const currentWeight = sortedWeight[sortedWeight.length - 1].weight;
+                const change = currentWeight - startWeight;
+                startWeightEl.textContent = `${startWeight.toFixed(1)} kg`;
+                currentWeightEl.textContent = `${currentWeight.toFixed(1)} kg`;
+                totalChangeEl.textContent = `${change.toFixed(1)} kg`;
+                totalChangeEl.classList.remove('text-green-400', 'text-red-400');
+                if (change < 0) totalChangeEl.classList.add('text-green-400');
+                else if (change > 0) totalChangeEl.classList.add('text-red-400');
+                weightHistoryListEl.innerHTML = '';
+                [...sortedWeight].reverse().forEach(entry => {
+                    const item = document.createElement('div');
+                    item.className = 'bg-gray-800/50 p-3 rounded-lg flex justify-between items-center text-sm';
+                    item.innerHTML = `<div><span class="font-semibold">${entry.weight.toFixed(1)} kg</span><span class="block text-xs text-gray-400">${new Date(entry.timestamp).toLocaleDateString('tr-TR')}</span></div><button data-id="${entry.id}" class="delete-weight-btn text-red-400 hover:text-red-300 p-2 rounded-full"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`;
+                    weightHistoryListEl.appendChild(item);
+                });
+            } else {
+                startWeightEl.textContent = `- kg`; currentWeightEl.textContent = `- kg`; totalChangeEl.textContent = `- kg`;
+                weightHistoryListEl.innerHTML = '<p class="text-gray-400 text-sm">Henüz kilo kaydı girmediniz.</p>';
+            }
+            renderWeightChart(sortedWeight);
+            lucide.createIcons();
+        }
 
-          const cat = document.createElement('p');
-          cat.textContent = 'Kategori: ' + recipe.category;
-          content.appendChild(cat);
+        function renderWeightChart(data) {
+            const ctx = document.getElementById('weight-chart').getContext('2d');
+            const labels = data.map(w => new Date(w.timestamp).toLocaleDateString('tr-TR'));
+            const weights = data.map(w => w.weight);
+            if (weightChart) weightChart.destroy();
+            weightChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: labels, datasets: [{ label: 'Kilo (kg)', data: weights, borderColor: '#2DD4BF', backgroundColor: 'rgba(45, 212, 191, 0.1)', fill: true, tension: 0.2 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: false, ticks: { color: '#9CA3AF' }, grid: { color: '#4A5568' } }, x: { ticks: { color: '#9CA3AF' }, grid: { color: 'rgba(0,0,0,0)' } } }, plugins: { legend: { display: false } } }
+            });
+        }
+        
+        function renderShoppingList() {
+            shoppingListItems.innerHTML = '';
+            if (shoppingList.length === 0) { shoppingListItems.innerHTML = '<p class="text-gray-400">Listeniz boş.</p>'; return; }
+            
+            const groupedList = shoppingList.reduce((acc, item) => {
+                const group = item.source || 'Diğer';
+                if (!acc[group]) acc[group] = [];
+                acc[group].push(item);
+                return acc;
+            }, {});
 
-          const ing = document.createElement('p');
-          ing.textContent = 'Malzemeler: ' + recipe.ingredients;
-          content.appendChild(ing);
+            for (const groupName in groupedList) {
+                const groupTitle = document.createElement('h4');
+                groupTitle.className = 'list-group-title';
+                groupTitle.textContent = groupName;
+                shoppingListItems.appendChild(groupTitle);
 
-          const stepsElem = document.createElement('p');
-          stepsElem.textContent = 'Adımlar: ' + recipe.steps;
-          content.appendChild(stepsElem);
+                groupedList[groupName].forEach(item => {
+                    const listItem = document.createElement('div');
+                    listItem.className = `list-item bg-gray-800/50 p-3 rounded-lg flex justify-between items-center ${item.completed ? 'completed' : ''}`;
+                    listItem.innerHTML = `<div class="flex items-center gap-3"><input type="checkbox" data-id="${item.id}" class="shopping-checkbox w-5 h-5 accent-cyan-400" ${item.completed ? 'checked' : ''}><span>${item.name}</span></div><button data-id="${item.id}" class="delete-shopping-item-btn text-red-400 hover:text-red-300 p-2 rounded-full"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`;
+                    shoppingListItems.appendChild(listItem);
+                });
+            }
+            lucide.createIcons();
+        }
 
-          card.appendChild(content);
+        function renderWaterTracker() {
+            waterTracker.innerHTML = '';
+            waterCountSpan.textContent = waterData.count;
+            for (let i = 1; i <= 15; i++) {
+                const isFull = i <= waterData.count;
+                const glass = document.createElement('button');
+                glass.dataset.index = i;
+                glass.className = `water-glass-btn p-2 rounded-lg transition-colors ${isFull ? 'bg-sky-500' : 'bg-slate-700 hover:bg-slate-600'}`;
+                glass.innerHTML = `<i data-lucide="glass-water" class="${isFull ? 'text-white' : 'text-slate-500'}"></i>`;
+                waterTracker.appendChild(glass);
+            }
+            lucide.createIcons();
+        }
 
-          // Butonlar
-          const btnContainer = document.createElement('div');
-          btnContainer.className = 'card-buttons';
+        function renderNotes() { notesArea.value = notes; }
 
-          const favBtn = document.createElement('button');
-          favBtn.innerHTML = recipe.favorite ? '❤️' : '🤍';
-          favBtn.title = recipe.favorite ? 'Favoriden çıkar' : 'Favorilere ekle';
-          favBtn.addEventListener('click', () => toggleFavorite(recipe.id, recipe.favorite));
-          btnContainer.appendChild(favBtn);
+        function renderExercisePlan() {
+            exerciseListItems.innerHTML = '';
+            if (exerciseList.length === 0) { exerciseListItems.innerHTML = '<p class="text-gray-400">Bugün için egzersiz eklemediniz.</p>'; return; }
+            exerciseList.forEach(item => {
+                const listItem = document.createElement('div');
+                listItem.className = `list-item bg-gray-800/50 p-3 rounded-lg flex justify-between items-center ${item.completed ? 'completed' : ''}`;
+                listItem.innerHTML = `<div class="flex items-center gap-3"><input type="checkbox" data-id="${item.id}" class="exercise-checkbox w-5 h-5 accent-cyan-400" ${item.completed ? 'checked' : ''}><span>${item.name}</span></div><button data-id="${item.id}" class="delete-exercise-btn text-red-400 hover:text-red-300 p-2 rounded-full"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`;
+                exerciseListItems.appendChild(listItem);
+            });
+            lucide.createIcons();
+        }
+        
+        function renderDietTable(data) {
+            dietListContent.innerHTML = '';
+            if(!Array.isArray(data)) return;
+            const table = document.createElement('table');
+            table.className = 'diet-table';
+            const thead = document.createElement('thead');
+            thead.innerHTML = '<tr><th>Gün</th><th>Sabah</th><th>Ara Öğün</th><th>Öğle</th><th>Ara Öğün</th><th>Akşam</th></tr>';
+            table.appendChild(thead);
+            
+            const tbody = document.createElement('tbody');
+            data.forEach(day => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${day.gun || ''}</strong></td>
+                    <td>${(day.sabah || '').replace(/\n/g, '<br>')}</td>
+                    <td>${(day.araOgun1 || '-').replace(/\n/g, '<br>')}</td>
+                    <td>${(day.ogle || '').replace(/\n/g, '<br>')}</td>
+                    <td>${(day.araOgun2 || '-').replace(/\n/g, '<br>')}</td>
+                    <td>${(day.aksam || '').replace(/\n/g, '<br>')}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            table.appendChild(tbody);
+            dietListContent.appendChild(table);
+        }
 
-          const shareBtn = document.createElement('button');
-          shareBtn.innerHTML = '📤';
-          shareBtn.title = 'Paylaş';
-          shareBtn.addEventListener('click', () => shareRecipe(recipe));
-          btnContainer.appendChild(shareBtn);
+        // --- API İŞLEMLERİ ---
+        async function fetchFromAPI(prompt, schema) {
+            errorMessageDiv.classList.add('hidden');
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { 
+                contents: chatHistory,
+                generationConfig: { responseMimeType: "application/json", responseSchema: schema }
+            };
+            
+            for (let i = 0; i < apiKeys.length; i++) {
+                const apiKey = apiKeys[currentApiKeyIndex];
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const result = await response.json();
+                    
+                    if (response.status === 429) { 
+                        console.warn(`API Key ${currentApiKeyIndex + 1} limit reached. Trying next key.`);
+                        currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
+                        continue; 
+                    }
+                    
+                    if (!response.ok) throw new Error(result.error?.message || `API Hatası: ${response.status}.`);
+                    
+                    const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!responseText) throw new Error("API'den geçerli bir yanıt alınamadı.");
+                    
+                    chatHistory.push({ role: "model", parts: [{ text: responseText }] }); 
+                    return responseText;
+                } catch (e) {
+                    console.error(`API Key ${currentApiKeyIndex + 1} ile hata:`, e);
+                    if (currentApiKeyIndex === apiKeys.length - 1) {
+                        showMessage(errorMessageDiv, `API hatası: ${e.message}. Lütfen daha sonra tekrar deneyin.`);
+                        return null;
+                    }
+                    currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
+                }
+            }
+            showMessage(errorMessageDiv, "Tüm API anahtarlarının günlük limiti doldu. Lütfen yarın tekrar deneyin.");
+            return null;
+        }
 
-          const copyBtn = document.createElement('button');
-          copyBtn.innerHTML = '📋';
-          copyBtn.title = 'Kopyala';
-          copyBtn.addEventListener('click', () => copyRecipe(recipe));
-          btnContainer.appendChild(copyBtn);
+        async function fetchRecipes(query) {
+            lastRecipeQuery = query; // Son aramayı kaydet
+            recipeListView.classList.remove('hidden');
+            recipesLoader.classList.remove('hidden');
+            recipesGrid.innerHTML = '';
+            refreshCategoryBtn.classList.add('hidden');
+            refreshCategoryBtn.dataset.query = query;
+            
+            const categoryTitles = { detox: "Genel Detoks Tarifleri", lipoedema: "Lipödem Destek Çorbaları", diuretic: "Ödem Atıcı İçecekler", "herbal-tea": "Bitki Çayları" };
+            recipeListTitle.textContent = categoryTitles[query] || `Arama Sonuçları: "${query}"`;
 
-          const deleteBtn = document.createElement('button');
-          deleteBtn.innerHTML = '🗑️';
-          deleteBtn.title = 'Tarifi sil';
-          deleteBtn.addEventListener('click', () => deleteRecipe(recipe.id));
-          btnContainer.appendChild(deleteBtn);
+            const creativityBooster = ["mevsimsel malzemelerle", "enerji verici", "ferahlatıcı", "antioksidan zengini", "farklı bir baharat kullanarak", "sindirim sistemini destekleyen"];
+            const randomTheme = creativityBooster[Math.floor(Math.random() * creativityBooster.length)];
+            
+            let prompt;
+            if (categoryTitles[query]) { // Eğer bir kategori ise
+                 const basePrompt = `Bana kilo vermeye odaklı, ${randomTheme} hazırlanan 4 adet birbirinden farklı tarif ver.`;
+                 const categoryPrompts = {
+                    detox: `${basePrompt} Bu tarifler genel detoks amaçlı olsun.`,
+                    lipoedema: `${basePrompt} Bu tarifler özellikle lipödem hastaları için uygun, iltihap azaltıcı ve ödem atıcı özelliklere sahip 'detoks çorbası' olsun.`,
+                    diuretic: `${basePrompt} Bu tarifler ödem atıcı, ferahlatıcı ve soğuk içecekler olsun.`,
+                    "herbal-tea": `${basePrompt} Bu tarifler kilo verdirici, ödem atıcı veya rahatlatıcı özelliklere sahip 'bitki çayı' olsun.`
+                 };
+                 prompt = categoryPrompts[query];
+            } else { // Eğer serbest arama ise
+                prompt = `Bana kullanıcının şu isteğine uygun 4 adet tarif ver: '${query}'. Tarifler kilo vermeye odaklı ve sağlıklı olsun.`;
+            }
+            
+            chatHistory = []; 
+            const schema = { type: "ARRAY", items: { type: "OBJECT", properties: { recipeName: { type: "STRING" }, description: { type: "STRING" }, ingredients: { type: "ARRAY", items: { type: "STRING" } }, instructions: { type: "ARRAY", items: { type: "STRING" } } }, required: ["recipeName", "description", "ingredients", "instructions"] } };
+            const resultText = await fetchFromAPI(prompt, schema);
+            
+            recipesLoader.classList.add('hidden');
+            if (resultText) {
+                try {
+                    const parsedData = JSON.parse(resultText);
+                    if (!Array.isArray(parsedData)) throw new Error();
+                    localRecipes = parsedData;
+                } catch {
+                    showMessage(errorMessageDiv, "API'den tarif formatı anlaşılamadı."); localRecipes = [];
+                }
+            } else {
+                localRecipes = [];
+            }
+            renderRecipes(localRecipes);
+        }
 
-          card.appendChild(btnContainer);
-          listEl.appendChild(card);
-        });
-      } catch (error) {
-        console.error("Tarifler getirilirken hata oluştu:", error);
-        listEl.innerHTML = '<p>Tarifler getirilirken hata oluştu: ' + error.message + '</p>';
-      }
-    }
-  </script>
+        async function fetchDietList(type) {
+            lipoedemaDietBtn.disabled = true; generalDietBtn.disabled = true;
+            dietLoader.classList.remove('hidden');
+            dietListContainer.classList.add('hidden');
+            chatHistory = [];
+            const prompt = type === 'lipoedema'
+                ? "Bana lipödem hastaları için uygun, 7 günlük, sabah, öğle, akşam ve ara öğünleri içeren detaylı bir diyet listesi oluştur. Listeyi JSON formatında, her gün için bir obje içeren bir dizi olarak ver. Her obje 'gun', 'sabah', 'araOgun1', 'ogle', 'araOgun2', ve 'aksam' alanlarını içermelidir."
+                : "Bana genel sağlıklı yaşam ve kilo kontrolü için, 7 günlük, sabah, öğle, akşam ve ara öğünleri içeren dengeli bir diyet listesi oluştur. Listeyi JSON formatında, her gün için bir obje içeren bir dizi olarak ver. Her obje 'gun', 'sabah', 'araOgun1', 'ogle', 'araOgun2', ve 'aksam' alanlarını içermelidir.";
+            
+            const schema = { type: "ARRAY", items: { type: "OBJECT", properties: { gun: {type: "STRING"}, sabah: {type: "STRING"}, araOgun1: {type: "STRING"}, ogle: {type: "STRING"}, araOgun2: {type: "STRING"}, aksam: {type: "STRING"} }, required: ["gun", "sabah", "ogle", "aksam"] } };
+            const resultText = await fetchFromAPI(prompt, schema);
+            
+            dietLoader.classList.add('hidden');
+            if(resultText) {
+                try {
+                    const parsedData = JSON.parse(resultText);
+                    renderDietTable(parsedData);
+                    dietListContainer.classList.remove('hidden');
+                } catch {
+                    showMessage(errorMessageDiv, "Diyet listesi formatı anlaşılamadı.");
+                }
+            }
+            lipoedemaDietBtn.disabled = false; generalDietBtn.disabled = false;
+        }
+        
+        async function fetchTipOfTheDay() {
+            const today = new Date().toISOString().slice(0, 10);
+            const storedTip = JSON.parse(localStorage.getItem('gulerDetoxTip_v3'));
+
+            if (storedTip && storedTip.date === today) {
+                tipTextSpan.textContent = storedTip.tip;
+                tipOfTheDayDiv.style.display = 'flex';
+                return;
+            }
+            
+            chatHistory = [];
+            const prompt = "Bana sağlık, detoks veya motivasyonla ilgili, güne başlarken okunacak ilham verici ve kısa bir ipucu ver.";
+            const schema = {type: "OBJECT", properties: {tip: {type: "STRING"}}, required: ["tip"]};
+            const resultText = await fetchFromAPI(prompt, schema);
+            if(resultText) {
+                try {
+                    const parsedTip = JSON.parse(resultText).tip;
+                    tipTextSpan.textContent = parsedTip;
+                    tipOfTheDayDiv.style.display = 'flex';
+                    localStorage.setItem('gulerDetoxTip_v3', JSON.stringify({ date: today, tip: parsedTip }));
+                } catch { /* Hata durumunda ipucu gösterme */ }
+            }
+        }
+
+        // --- UYGULAMA BAŞLATMA VE YÖNETİMİ ---
+        function main() {
+            lucide.createIcons();
+            switchView('recipe-categories');
+            loadDataFromStorage();
+            renderAll();
+            fetchTipOfTheDay();
+
+            navButtons.forEach(btn => btn.addEventListener('click', () => {
+                const view = btn.dataset.view;
+                if (view === 'recipe-categories') {
+                    recipeListView.classList.add('hidden');
+                }
+                switchView(view);
+            }));
+            
+            categoryButtons.forEach(btn => btn.addEventListener('click', () => fetchRecipes(btn.dataset.category)));
+            refreshCategoryBtn.addEventListener('click', (e) => fetchRecipes(e.currentTarget.dataset.query));
+            backToCategoriesBtn.addEventListener('click', () => recipeListView.classList.add('hidden'));
+            lipoedemaDietBtn.addEventListener('click', () => fetchDietList('lipoedema'));
+            generalDietBtn.addEventListener('click', () => fetchDietList('general'));
+            
+            recipeSearchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const query = recipeSearchInput.value.trim();
+                if(query) fetchRecipes(query);
+            });
+
+            weightForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const weightValue = newWeightInput.value;
+                if (!weightValue || isNaN(parseFloat(weightValue))) return;
+                weightData.push({ id: new Date().toISOString(), weight: parseFloat(weightValue), timestamp: new Date().toISOString() });
+                saveWeightToStorage();
+                renderWeightView();
+                newWeightInput.value = '';
+            });
+
+            recipesGrid.addEventListener('click', (e) => {
+                const addLogBtn = e.target.closest('.add-log-btn');
+                const addShoppingBtn = e.target.closest('.add-to-shopping-list-btn');
+
+                if (addLogBtn) {
+                    const recipeIndex = addLogBtn.dataset.recipeIndex;
+                    const recipe = localRecipes[recipeIndex];
+                    if (recipe) {
+                        dailyLog.push({ id: new Date().toISOString(), recipeName: recipe.recipeName, timestamp: new Date().toISOString() });
+                        saveLogToStorage();
+                        renderLog();
+                        showMessage(successMessageDiv, `'${recipe.recipeName}' günlüğe eklendi!`);
+                    }
+                }
+
+                if (addShoppingBtn) {
+                    const recipeIndex = addShoppingBtn.dataset.recipeIndex;
+                    const recipe = localRecipes[recipeIndex];
+                    if (recipe && recipe.ingredients) {
+                        let addedCount = 0;
+                        recipe.ingredients.forEach(ingredient => {
+                            if (!shoppingList.some(item => item.name.toLowerCase() === ingredient.toLowerCase())) {
+                                shoppingList.push({ id: new Date().toISOString() + ingredient, name: ingredient, completed: false, source: recipe.recipeName });
+                                addedCount++;
+                            }
+                        });
+                        saveShoppingListToStorage();
+                        renderShoppingList();
+                        showMessage(successMessageDiv, `${addedCount} malzeme alışveriş listesine eklendi!`);
+                    }
+                }
+            });
+            
+            logList.addEventListener('click', (e) => {
+                const button = e.target.closest('.delete-log-btn');
+                if(!button) return;
+                const idToDelete = button.dataset.id;
+                dailyLog = dailyLog.filter(log => log.id !== idToDelete);
+                saveLogToStorage();
+                renderLog();
+            });
+
+            weightHistoryListEl.addEventListener('click', (e) => {
+                const button = e.target.closest('.delete-weight-btn');
+                if(!button) return;
+                const idToDelete = button.dataset.id;
+                weightData = weightData.filter(entry => entry.id !== idToDelete);
+                saveWeightToStorage();
+                renderWeightView();
+            });
+            
+            shoppingListItems.addEventListener('click', (e) => {
+                const deleteBtn = e.target.closest('.delete-shopping-item-btn');
+                const checkbox = e.target.closest('.shopping-checkbox');
+                if (deleteBtn) {
+                    const idToDelete = deleteBtn.dataset.id;
+                    shoppingList = shoppingList.filter(item => item.id !== idToDelete);
+                }
+                if (checkbox) {
+                    const idToToggle = checkbox.dataset.id;
+                    const item = shoppingList.find(item => item.id === idToToggle);
+                    if(item) item.completed = !item.completed;
+                }
+                saveShoppingListToStorage();
+                renderShoppingList();
+            });
+
+            clearShoppingListBtn.addEventListener('click', () => {
+                shoppingList = [];
+                saveShoppingListToStorage();
+                renderShoppingList();
+            });
+
+            waterTracker.addEventListener('click', (e) => {
+                const glassBtn = e.target.closest('.water-glass-btn');
+                if(!glassBtn) return;
+                const index = parseInt(glassBtn.dataset.index);
+                const currentCount = waterData.count;
+                
+                if (waterData.count === index) {
+                    waterData.count--;
+                } else {
+                    waterData.count = index;
+                }
+                
+                const waterLogName = "1 Bardak Su";
+                if (waterData.count > currentCount) { 
+                    dailyLog.push({ id: new Date().toISOString(), recipeName: waterLogName, timestamp: new Date().toISOString() });
+                } else { 
+                    const lastWaterLogIndex = dailyLog.findLastIndex(log => log.recipeName === waterLogName);
+                    if(lastWaterLogIndex > -1) dailyLog.splice(lastWaterLogIndex, 1);
+                }
+                
+                saveWaterToStorage();
+                saveLogToStorage();
+                renderWaterTracker();
+                renderLog();
+            });
+
+            notesArea.addEventListener('input', (e) => {
+                notes = e.target.value;
+                saveNotesToStorage();
+            });
+
+            exerciseForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const exerciseName = newExerciseInput.value.trim();
+                if(!exerciseName) return;
+                exerciseList.push({ id: new Date().toISOString(), name: exerciseName, completed: false });
+                saveExerciseToStorage();
+                renderExercisePlan();
+                newExerciseInput.value = '';
+            });
+
+            exerciseListItems.addEventListener('click', (e) => {
+                const deleteBtn = e.target.closest('.delete-exercise-btn');
+                const checkbox = e.target.closest('.exercise-checkbox');
+                if (deleteBtn) {
+                    const idToDelete = deleteBtn.dataset.id;
+                    exerciseList = exerciseList.filter(item => item.id !== idToDelete);
+                }
+                if (checkbox) {
+                    const idToToggle = checkbox.dataset.id;
+                    const item = exerciseList.find(item => item.id === idToToggle);
+                    if(item) item.completed = !item.completed;
+                }
+                saveExerciseToStorage();
+                renderExercisePlan();
+            });
+
+            shareDietBtn.addEventListener('click', async () => {
+                const table = dietListContent.querySelector('table');
+                if(!table) return;
+                let textToCopy = 'Güler Detoks Asistanı - Beslenme Planım\n\n';
+                for (const row of table.rows) {
+                    let rowText = [];
+                    for(const cell of row.cells) { rowText.push(cell.innerText.replace(/\n/g, ', ')); }
+                    textToCopy += rowText.join('\t| ') + '\n';
+                }
+
+                try {
+                    if (navigator.share) {
+                        await navigator.share({
+                            title: 'Güler Detoks Asistanı Beslenme Planı',
+                            text: textToCopy,
+                        });
+                        showMessage(successMessageDiv, 'Plan paylaşıldı!');
+                    } else {
+                        throw new Error('Web Share API not supported');
+                    }
+                } catch(err) {
+                    const tempTextArea = document.createElement('textarea');
+                    tempTextArea.value = textToCopy;
+                    document.body.appendChild(tempTextArea);
+                    tempTextArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempTextArea);
+                    showMessage(successMessageDiv, 'Plan panoya kopyalandı!');
+                }
+            });
+        }
+
+        // Uygulamayı başlat
+        main();
+    </script>
 </body>
 </html>
